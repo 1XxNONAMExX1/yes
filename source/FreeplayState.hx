@@ -37,7 +37,7 @@ class FreeplayState extends MusicBeatState
 	var scoreBG:FlxSprite;
 	var scoreText:FlxText;
 	var diffText:FlxText;
-	var chapt:FlxText;
+	var chatp:FlxText;
 	var lerpScore:Int = 0;
 	var lerpRating:Float = 0;
 	var intendedScore:Int = 0;
@@ -194,7 +194,7 @@ bg3.frames = Paths.getSparrowAtlas('all/backFreeplay','images');
 
 		for (i in 0...songs.length)
 		{
-			var songText:Alphabet = new Alphabet(400, 320, songs[i].songName, true);
+			var songText:Alphabet = new Alphabet(90, 320, songs[i].songName, true);
 			songText.isMenuItem = true;
 			songText.targetY = i - curSelected;
 			songText.changeX = false;
@@ -232,7 +232,8 @@ bg3.frames = Paths.getSparrowAtlas('all/backFreeplay','images');
 		add(scoreBG);
 		
 		chatp = new FlxText(0,scoreText.y + 36,0,'charpter 1',30)
-		chatp.setFormat(Paths.font("vc.ttf"), 30, FlxColor.WHITE, RIGHT);
+		chatp.setFormat(Paths.font("vc.ttf"), 30, FlxColor.WHITE, CENTER);
+		chatp.screenCenter(X);
 		add(chatp);
 
 		diffText = new FlxText(scoreText.x, scoreText.y + 36, 0, "", 24);
