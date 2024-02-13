@@ -231,7 +231,7 @@ bg3.frames = Paths.getSparrowAtlas('all/backFreeplay','images');
 		//scoreBG.screenCenter(X);
 		add(scoreBG);
 		
-		chatp = new FlxText(0,scoreText.y + 36,0,'charpter 1',30)
+		chatp = new FlxText(0,scoreText.y + 36,0,'charpter 1',30);
 		chatp.setFormat(Paths.font("vc.ttf"), 30, FlxColor.WHITE, CENTER);
 		chatp.screenCenter(X);
 		add(chatp);
