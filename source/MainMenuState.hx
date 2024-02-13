@@ -27,19 +27,20 @@ class MainMenuState extends MusicBeatState
 {
 	public static var psychEngineVersion:String = '0.6.3'; //This is also used for Discord RPC
 	public static var curSelected:Int = 0;
+	public static var firstStart:Bool = true;
 
 	var menuItems:FlxTypedGroup<FlxSprite>;
 	private var camGame:FlxCamera;
 	private var camAchievement:FlxCamera;
 	
 	var optionShit:Array<String> = [
-		'story_mode',
-		'freeplay',
-		#if MODS_ALLOWED 'mods', #end
-		#if ACHIEVEMENTS_ALLOWED 'awards', #end
-		'credits',
-		#if !switch 'donate', #end
-		'options'
+		//'story_mode',
+		'freeplay',//1
+		#if MODS_ALLOWED 'mods', #end//2
+		//#if ACHIEVEMENTS_ALLOWED 'awards', #end
+		//'credits',
+		#if !switch 'donate', #end//3
+		'options'//4
 	];
 
 	var magenta:FlxSprite;
@@ -77,13 +78,28 @@ class MainMenuState extends MusicBeatState
 		persistentUpdate = persistentDraw = true;
 
 		var yScroll:Float = Math.max(0.25 - (0.05 * (optionShit.length - 4)), 0.1);
-		var bg:FlxSprite = new FlxSprite(-80).loadGraphic(Paths.image('menuBG'));
-		bg.scrollFactor.set(0, yScroll);
+		var bg:FlxSprite = new FlxSprite(-80,0).loadGraphic(Paths.image('all/back_menu'));
+        bg.frames = Paths.getSparrowAtlas('all/back_menu','images');
 		bg.setGraphicSize(Std.int(bg.width * 1.175));
+		bg.animation.addByPrefix('picoidle','hi',24,true);
+		bg.animation.play('picoidle');
+		bg.scale.x = 0.95;
+		bg.scale.y = 0.95;
 		bg.updateHitbox();
 		bg.screenCenter();
 		bg.antialiasing = ClientPrefs.globalAntialiasing;
 		add(bg);
+
+		var bg2:FlxSprite = new FlxSprite(-110,-60).loadGraphic(Paths.image('all/images/back'));
+		bg2.setGraphicSize(Std.int(bg.width * 1.175));
+		bg2.frames = Paths.getSparrowAtlas('all/back','images');
+		bg2.animation.addByPrefix('menuidle','hi',24,true);
+		bg2.animation.play('menuidle');
+		bg2.updateHitbox();
+		bg2.screenCenter(Y);
+                //bg2.screenCenter(Y);
+		bg2.antialiasing = ClientPrefs.globalAntialiasing;
+		add(bg2);
 
 		camFollow = new FlxObject(0, 0, 1, 1);
 		camFollowPos = new FlxObject(0, 0, 1, 1);
@@ -105,7 +121,7 @@ class MainMenuState extends MusicBeatState
 		menuItems = new FlxTypedGroup<FlxSprite>();
 		add(menuItems);
 
-		var scale:Float = 1;
+		var scale:Float = 0.98;
 		/*if(optionShit.length > 6) {
 			scale = 6 / optionShit.length;
 		}*/
@@ -113,7 +129,7 @@ class MainMenuState extends MusicBeatState
 		for (i in 0...optionShit.length)
 		{
 			var offset:Float = 108 - (Math.max(optionShit.length, 4) - 4) * 80;
-			var menuItem:FlxSprite = new FlxSprite(0, (i * 140)  + offset);
+			var menuItem:FlxSprite = new FlxSprite((i * 1), (i * 140)  + offset);
 			menuItem.scale.x = scale;
 			menuItem.scale.y = scale;
 			menuItem.frames = Paths.getSparrowAtlas('mainmenu/menu_' + optionShit[i]);
@@ -121,7 +137,7 @@ class MainMenuState extends MusicBeatState
 			menuItem.animation.addByPrefix('selected', optionShit[i] + " white", 24);
 			menuItem.animation.play('idle');
 			menuItem.ID = i;
-			menuItem.screenCenter(X);
+			//menuItem.screenCenter(X);
 			menuItems.add(menuItem);
 			var scr:Float = (optionShit.length - 4) * 0.135;
 			if(optionShit.length < 6) scr = 0;
@@ -129,15 +145,48 @@ class MainMenuState extends MusicBeatState
 			menuItem.antialiasing = ClientPrefs.globalAntialiasing;
 			//menuItem.setGraphicSize(Std.int(menuItem.width * 0.58));
 			menuItem.updateHitbox();
+
+
+            switch(i)
+			    {
+                    case 0:
+					    menuItem.y = 80;
+					    menuItem.x = 310;
+                        menuItem.angle = 10;
+                    
+                    case 1:
+						menuItem.y = 220;
+						menuItem.x = 200;
+						menuItem.angle = 0;
+   
+
+					case 2:
+						menuItem.y = 410;
+						menuItem.x = 290;
+						menuItem.angle = -7;
+						
+					case 3:
+						menuItem.y = 580;
+						menuItem.x = 290;
+						menuItem.angle = 0;
+					
+					case 4:
+						menuItem.y = 700;
+						menuItem.x = 260;	
+				}
 		}
 
-		FlxG.camera.follow(camFollowPos, null, 1);
+        
 
-		var versionShit:FlxText = new FlxText(12, FlxG.height - 44, 0, "Psych Engine v" + psychEngineVersion, 12);
+		firstStart = false;
+
+		//FlxG.camera.follow(camFollowPos, null, 1);
+
+		var versionShit:FlxText = new FlxText(12, FlxG.height - 44, 0, "PICO MODJAM | PE" + psychEngineVersion, 12);
 		versionShit.scrollFactor.set();
 		versionShit.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		add(versionShit);
-		var versionShit:FlxText = new FlxText(12, FlxG.height - 24, 0, "Friday Night Funkin' v" + Application.current.meta.get('version'), 12);
+		var versionShit:FlxText = new FlxText(12, FlxG.height - 24, 0, "FNF v" + Application.current.meta.get('version'), 12);
 		versionShit.scrollFactor.set();
 		versionShit.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		add(versionShit);
@@ -275,7 +324,7 @@ class MainMenuState extends MusicBeatState
 
 		menuItems.forEach(function(spr:FlxSprite)
 		{
-			spr.screenCenter(X);
+			//spr.screenCenter(X);
 		});
 	}
 

@@ -13,6 +13,7 @@ import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.math.FlxMath;
 import flixel.text.FlxText;
 import flixel.util.FlxColor;
+import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
 import lime.utils.Assets;
 import flixel.system.FlxSound;
@@ -27,7 +28,7 @@ using StringTools;
 class FreeplayState extends MusicBeatState
 {
 	var songs:Array<SongMetadata> = [];
-
+    var please = false;
 	var selector:FlxText;
 	private static var curSelected:Int = 0;
 	var curDifficulty:Int = -1;
@@ -36,10 +37,14 @@ class FreeplayState extends MusicBeatState
 	var scoreBG:FlxSprite;
 	var scoreText:FlxText;
 	var diffText:FlxText;
+	var chapt;FlxText;
 	var lerpScore:Int = 0;
 	var lerpRating:Float = 0;
 	var intendedScore:Int = 0;
 	var intendedRating:Float = 0;
+	public var wocao:Int = 0;
+	// 0: chess1
+	// 1: chess2
 
 	private var grpSongs:FlxTypedGroup<Alphabet>;
 	private var curPlaying:Bool = false;
@@ -47,6 +52,15 @@ class FreeplayState extends MusicBeatState
 	private var iconArray:Array<HealthIcon> = [];
 
 	var bg:FlxSprite;
+	var chess1:FlxSprite;
+	var chess2:FlxSprite;
+	var bg3:FlxSprite;
+	var bgback:FlxSprite;
+	var cPico:FlxSprite;
+	var cBf:FlxSprite;
+	var nPico:FlxSprite;
+	var nBf:FlxSprite;
+	var tank:FlxSprite;
 	var intendedColor:Int;
 	var colorTween:FlxTween;
 
@@ -104,17 +118,87 @@ class FreeplayState extends MusicBeatState
 
 		bg = new FlxSprite().loadGraphic(Paths.image('menuDesat'));
 		bg.antialiasing = ClientPrefs.globalAntialiasing;
+		bg.alpha = 0;
 		add(bg);
 		bg.screenCenter();
+
+		bgback = new FlxSprite().loadGraphic(Paths.image('all/images/chessbg'));
+		bgback.antialiasing = ClientPrefs.globalAntialiasing;
+		add(bgback);
+		bgback.screenCenter();
+
+		chess1 = new FlxSprite(0,0).loadGraphic(Paths.image('all/images/chess'));
+		chess1.antialiasing = ClientPrefs.globalAntialiasing;
+        chess1.screenCenter(Y);
+        chess1.velocity.x = 60;
+		add(chess1);
+
+		chess2 = new FlxSprite(-1820,0).loadGraphic(Paths.image('all/images/chess'));
+		chess2.antialiasing = ClientPrefs.globalAntialiasing;
+        chess2.screenCenter(Y);
+        chess2.velocity.x = 60;
+		add(chess2);
+
+        bg3 = new FlxSprite(-140,-325).loadGraphic(Paths.image('all/images/backFreeplay'));
+bg3.frames = Paths.getSparrowAtlas('all/backFreeplay','images');
+		bg3.animation.addByPrefix('idleAB','hi',24,true);
+		bg3.animation.play('idleAB');
+		bg3.antialiasing = ClientPrefs.globalAntialiasing;
+        bg3.screenCenter(Y);
+		add(bg3);
+		
+		cPico = new FlxSprite(830,250).loadGraphic(Paths.image('characters/Corruption_Pico'));
+        cPico.frames = Paths.getSparrowAtlas('characters/Corruption_Pico','images');
+		cPico.animation.addByPrefix('cPicoIdle','Pico Idle Dance',24,true);
+		cPico.animation.play('cPicoIdle');
+		cPico.antialiasing = ClientPrefs.globalAntialiasing;
+        cPico.alpha = 0;
+		add(cPico);
+		
+		nPico = new FlxSprite(830,250).loadGraphic(Paths.image('characters/pico_bfrs'));
+        nPico.frames = Paths.getSparrowAtlas('characters/pico_bfrs','images');
+		nPico.animation.addByPrefix('picoIdle','Pico Idle Dance',24,true);
+		nPico.animation.play('picoIdle');
+		nPico.antialiasing = ClientPrefs.globalAntialiasing;
+        nPico.alpha = 0;
+		add(nPico);
+
+		nBf = new FlxSprite(0,310).loadGraphic(Paths.image('characters/bf_bfrs'));
+        nBf.frames = Paths.getSparrowAtlas('characters/bf_bfrs','images');
+		nBf.animation.addByPrefix('bfIdle','BF idle dance',24,true);
+		nBf.animation.play('bfIdle');
+		nBf.antialiasing = ClientPrefs.globalAntialiasing;
+        nBf.alpha = 0;
+		add(nBf);
+
+		cBf = new FlxSprite(0,310).loadGraphic(Paths.image('characters/BF_Corruption'));
+        cBf.frames = Paths.getSparrowAtlas('characters/BF_Corruption','images');
+		cBf.animation.addByPrefix('cbfIdle','BF idle dance',24,true);
+		cBf.animation.play('cbfIdle');
+		cBf.antialiasing = ClientPrefs.globalAntialiasing;
+        cBf.alpha = 0;
+		cBf.flipX = true;
+		add(cBf);
+
+		tank = new FlxSprite(0,160).loadGraphic(Paths.image('characters/Tankman'));
+        tank.frames = Paths.getSparrowAtlas('characters/Tankman','images');
+		tank.animation.addByPrefix('tankIdle','Tankman Idle Dance',24,true);
+		tank.animation.play('tankIdle');
+		tank.antialiasing = ClientPrefs.globalAntialiasing;
+        tank.alpha = 0;
+		tank.flipX = true;
+		add(tank);
 
 		grpSongs = new FlxTypedGroup<Alphabet>();
 		add(grpSongs);
 
 		for (i in 0...songs.length)
 		{
-			var songText:Alphabet = new Alphabet(90, 320, songs[i].songName, true);
+			var songText:Alphabet = new Alphabet(400, 320, songs[i].songName, true);
 			songText.isMenuItem = true;
 			songText.targetY = i - curSelected;
+			songText.changeX = false;
+			songText.screenCenter(X);
 			grpSongs.add(songText);
 
 			var maxWidth = 980;
@@ -132,23 +216,31 @@ class FreeplayState extends MusicBeatState
 			iconArray.push(icon);
 			add(icon);
 
-			// songText.x += 40;
+			//songText.x += 40;
 			// DONT PUT X IN THE FIRST PARAMETER OF new ALPHABET() !!
-			// songText.screenCenter(X);
+			 //songText.screenCenter(X);
 		}
 		WeekData.setDirectoryFromWeek();
 
-		scoreText = new FlxText(FlxG.width * 0.7, 5, 0, "", 32);
-		scoreText.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, RIGHT);
+		scoreText = new FlxText(FlxG.width * 0.5, 5, 0, "", 32);
+		scoreText.setFormat(Paths.font("vc.ttf"), 32, FlxColor.WHITE, RIGHT);
+		//scoreText.screenCenter(X);
 
-		scoreBG = new FlxSprite(scoreText.x - 6, 0).makeGraphic(1, 66, 0xFF000000);
+		scoreBG = new FlxSprite(scoreText.x - 6, 0).makeGraphic(3000, 66, 0xFF000000);
 		scoreBG.alpha = 0.6;
+		//scoreBG.screenCenter(X);
 		add(scoreBG);
+		
+		chatp = new FlxText(0,scoreText.y + 36,0,'charpter 1',30)
+		chatp.setFormat(Paths.font("vc.ttf"), 30, FlxColor.WHITE, RIGHT);
+		add(chatp);
 
 		diffText = new FlxText(scoreText.x, scoreText.y + 36, 0, "", 24);
 		diffText.font = scoreText.font;
+		//diffText.screenCenter(X);
+		diffText.alpha = 0;
 		add(diffText);
-
+  
 		add(scoreText);
 
 		if(curSelected >= songs.length) curSelected = 0;
@@ -185,6 +277,7 @@ class FreeplayState extends MusicBeatState
 
 		var textBG:FlxSprite = new FlxSprite(0, FlxG.height - 26).makeGraphic(FlxG.width, 26, 0xFF000000);
 		textBG.alpha = 0.6;
+		textBG.screenCenter(X);
 		add(textBG);
 
 		#if PRELOAD_ALL
@@ -200,7 +293,7 @@ class FreeplayState extends MusicBeatState
 		var size:Int = 18;
 		#end
 		var text:FlxText = new FlxText(textBG.x, textBG.y + 4, FlxG.width, leText, size);
-		text.setFormat(Paths.font("vcr.ttf"), size, FlxColor.WHITE, RIGHT);
+		text.setFormat(Paths.font("vc.ttf"), size, FlxColor.WHITE, RIGHT);
 		text.scrollFactor.set();
 		add(text);
 
@@ -252,6 +345,22 @@ class FreeplayState extends MusicBeatState
 		{
 			FlxG.sound.music.volume += 0.5 * FlxG.elapsed;
 		}
+		
+		
+		if (chess2.x > -0.001 && chess2.x < 0.001 && wocao > -1 && wocao < 1)
+		{
+	     chess1.x = -1820;
+
+		wocao = 1;
+		}	
+
+		if (chess1.x > -0.001 && chess1.x < 0.001 && wocao > 0 && wocao < 2)
+		{
+		chess2.x = -1820;
+	
+		wocao = 0;
+		
+		}	
 
 		lerpScore = Math.floor(FlxMath.lerp(lerpScore, intendedScore, CoolUtil.boundTo(elapsed * 24, 0, 1)));
 		lerpRating = FlxMath.lerp(lerpRating, intendedRating, CoolUtil.boundTo(elapsed * 12, 0, 1));
@@ -260,6 +369,12 @@ class FreeplayState extends MusicBeatState
 			lerpScore = intendedScore;
 		if (Math.abs(lerpRating - intendedRating) <= 0.01)
 			lerpRating = intendedRating;
+			
+			
+			
+			
+			
+		
 
 		var ratingSplit:Array<String> = Std.string(Highscore.floorDecimal(lerpRating * 100, 2)).split('.');
 		if(ratingSplit.length < 2) { //No decimals, add an empty space
@@ -315,7 +430,6 @@ class FreeplayState extends MusicBeatState
 				changeDiff();
 			}
 		}
-
 		if (controls.UI_LEFT_P)
 			changeDiff(-1);
 		else if (controls.UI_RIGHT_P)
@@ -450,9 +564,42 @@ class FreeplayState extends MusicBeatState
 
 		if (curSelected < 0)
 			curSelected = songs.length - 1;
+			
+			
 		if (curSelected >= songs.length)
 			curSelected = 0;
 			
+		
+		if (curSelected > -1 && curSelected < 1)
+			//removal
+		{
+			cBf.alpha = 0;
+			cPico.alpha = 0;
+			nPico.alpha = 1;
+			nBf.alpha = 1;
+			tank.alpha = 0;
+		}
+
+		if (curSelected > 1 && curSelected < 3)
+			//vanquished
+	    {
+		cBf.alpha = 1;
+		cPico.alpha = 1;
+		nPico.alpha = 0;
+		nBf.alpha = 0;
+		tank.alpha = 0;
+		}
+		
+		if (curSelected > 0 && curSelected < 2)
+			//warzone
+		{
+			cBf.alpha = 0;
+			cPico.alpha = 0;
+			nPico.alpha = 1;
+			nBf.alpha = 0;
+			tank.alpha = 1;
+		}
+		
 		var newColor:Int = songs[curSelected].color;
 		if(newColor != intendedColor) {
 			if(colorTween != null) {
