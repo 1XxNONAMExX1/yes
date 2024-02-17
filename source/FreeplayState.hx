@@ -103,7 +103,7 @@ class FreeplayState extends MusicBeatState
 				addSong(song[0], i, song[1], FlxColor.fromRGB(colors[0], colors[1], colors[2]));
 			}
 		}
-		WeekData.loadTheFirstEnabledMod();
+		//WeekData.loadTheFirstEnabledMod();
 
 		/*		//KIND OF BROKEN NOW AND ALSO PRETTY USELESS//
 
@@ -208,7 +208,7 @@ bg3.frames = Paths.getSparrowAtlas('all/backFreeplay','images');
 			}
 			songText.snapToPosition();
 
-			Paths.currentModDirectory = songs[i].folder;
+			//Paths.currentModDirectory = songs[i].folder;
 			var icon:HealthIcon = new HealthIcon(songs[i].songCharacter);
 			icon.sprTracker = songText;
 
@@ -224,14 +224,14 @@ bg3.frames = Paths.getSparrowAtlas('all/backFreeplay','images');
 
 		scoreText = new FlxText(FlxG.width * 0.5, 5, 0, "", 32);
 		scoreText.setFormat(Paths.font("vc.ttf"), 32, FlxColor.WHITE, RIGHT);
-		//scoreText.screenCenter(X);
+		scoreText.screenCenter(X);
 
 		scoreBG = new FlxSprite(scoreText.x - 6, 0).makeGraphic(3000, 66, 0xFF000000);
 		scoreBG.alpha = 0.6;
 		//scoreBG.screenCenter(X);
 		add(scoreBG);
 		
-		chatp = new FlxText(0,scoreText.y + 36,0,'charpter 1',30);
+		chatp = new FlxText(0,scoreText.y + 30,0,'charpter 1',30);
 		chatp.setFormat(Paths.font("vc.ttf"), 30, FlxColor.WHITE, CENTER);
 		chatp.screenCenter(X);
 		add(chatp);
